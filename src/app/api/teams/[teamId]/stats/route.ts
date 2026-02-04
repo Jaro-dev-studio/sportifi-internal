@@ -81,20 +81,20 @@ export async function GET(
       totalVideos,
       totalPlayCards,
       totalPlays,
-      recentActivity: recentActivity.map((log) => ({
+      recentActivity: recentActivity.map((log: { id: string; action: string; createdAt: Date; user: { id: string; name: string | null; email: string } | null }) => ({
         id: log.id,
         type: log.action.split(".")[0],
         description: log.action,
         userName: log.user?.name || log.user?.email || "Unknown",
         timestamp: log.createdAt.toISOString(),
       })),
-      recentVideos: recentVideos.map((v) => ({
+      recentVideos: recentVideos.map((v: { id: string; originalName: string; status: string; createdAt: Date }) => ({
         id: v.id,
         name: v.originalName,
         status: v.status,
         createdAt: v.createdAt.toISOString(),
       })),
-      recentPlayCards: recentPlayCards.map((c) => ({
+      recentPlayCards: recentPlayCards.map((c: { id: string; name: string; type: string; createdAt: Date }) => ({
         id: c.id,
         name: c.name,
         type: c.type,
