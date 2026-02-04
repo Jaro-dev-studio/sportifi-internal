@@ -75,7 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           include: { team: true },
         })
         
-        session.user.teams = memberships.map((m) => ({
+        session.user.teams = memberships.map((m: { role: TeamRole; permissions: unknown; team: { id: string; name: string; slug: string } }) => ({
           id: m.team.id,
           name: m.team.name,
           slug: m.team.slug,

@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AnimatedField } from "@/components/field/animated-field"
 import { formatDistanceToNow } from "date-fns"
+import type { PlayerData, RouteArrow } from "@/types"
 
 interface AssignedPlay {
   id: string
@@ -167,8 +168,8 @@ export default function PlayerViewPage() {
           <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-4">
               <AnimatedField
-                players={mockPlayCardData.players as any}
-                routes={mockPlayCardData.routes as any}
+                players={mockPlayCardData.players as PlayerData[]}
+                routes={mockPlayCardData.routes as RouteArrow[]}
                 fieldConfig={mockPlayCardData.fieldConfig}
                 duration={5}
               />
@@ -312,7 +313,7 @@ export default function PlayerViewPage() {
                 <FileText className="h-12 w-12 text-slate-600 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No plays assigned</h3>
                 <p className="text-slate-400 text-sm">
-                  Your coach hasn't assigned any plays yet
+                  Your coach has not assigned any plays yet
                 </p>
               </CardContent>
             </Card>

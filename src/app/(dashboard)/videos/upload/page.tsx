@@ -148,7 +148,7 @@ export default function VideoUploadPage() {
 
       // Simulate server response
       await new Promise((resolve) => setTimeout(resolve, 500))
-      const mockVideoId = `video-${Date.now()}`
+      const mockVideoId = `video-${crypto.randomUUID()}`
 
       console.log("[Upload] Upload complete, processing video...")
       setUploadState((prev) => ({
