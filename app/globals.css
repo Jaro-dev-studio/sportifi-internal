@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+/* 
+ * CUSTOMIZE: Brand Colors
+ * Update these CSS variables to match your client's brand colors.
+ * All components use these variables for consistent theming.
+ */
+:root {
+  /* Primary brand color - buttons, links, accents */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-foreground: #FFFFFF;
+
+  /* Secondary color - backgrounds, subtle elements */
+  --color-secondary: #1E293B;
+  --color-secondary-hover: #334155;
+  --color-secondary-foreground: #FFFFFF;
+
+  /* Accent color - highlights, badges, success states */
+  --color-accent: #10B981;
+  --color-accent-hover: #059669;
+  --color-accent-foreground: #FFFFFF;
+
+  /* Background colors */
+  --color-background: #FFFFFF;
+  --color-foreground: #0F172A;
+
+  /* Muted elements */
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+
+  /* Border color */
+  --color-border: #E2E8F0;
+
+  /* Card backgrounds */
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+
+  /* Destructive/error states */
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+
+  /* Input and form elements */
+  --color-input: #E2E8F0;
+  --color-ring: #3B82F6;
+
+  /* Border radius */
+  --radius: 0.5rem;
+}
+
+/* Tailwind v4 theme configuration */
+@theme inline {
+  /* Colors mapped to CSS variables */
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-foreground: var(--color-primary-foreground);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-hover: var(--color-secondary-hover);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  --color-border: var(--color-border);
+
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
+
+  /* Font families */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar (optional) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}

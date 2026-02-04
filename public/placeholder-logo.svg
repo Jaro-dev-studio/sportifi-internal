@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+  <!-- 
+    CUSTOMIZE: Replace this placeholder logo with client logo
+    Recommended formats: SVG for logos, PNG/WebP for complex images
+  -->
+  <rect width="40" height="40" rx="8" fill="#3B82F6"/>
+  <path d="M20 10L28 26H12L20 10Z" fill="white"/>
+  <circle cx="20" cy="28" r="3" fill="white"/>
+</svg>
+
+

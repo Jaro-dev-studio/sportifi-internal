@@ -1,0 +1,102 @@
+# Demo Project - Next.js Dashboard Application
+
+## Framework
+
+- Next.js 16+ with App Router
+- TypeScript strict mode
+- Tailwind CSS for all styling
+
+## Code Style
+
+- Write concise, technical TypeScript code
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError)
+- Keep components focused and composable
+- Use the cn() utility for conditional classNames
+- Favor named exports for components
+
+## Folder Structure
+
+- Page components go in app/ directory
+- Reusable components go in components/
+- UI primitives go in components/ui/
+- Layout components go in components/layout/
+- Use lowercase with dashes for directories (e.g., components/auth-wizard)
+
+## Naming Conventions
+
+- All components should be named like new-component.tsx
+- Use lowercase with dashes for directories
+- Favor named exports for components
+
+## TypeScript Usage
+
+- Use TypeScript for all code
+- Prefer interfaces over types
+- Use proper typing for all props and function parameters
+
+## Theming
+
+- Always use CSS variable-based colors (primary, secondary, accent, background, etc.)
+- Never hardcode hex colors - use Tailwind classes that map to CSS variables
+- This allows easy brand customization
+- Update :root CSS variables in globals.css to customize the theme
+
+## UI and Styling
+
+- Use mobile-first approach for responsive design
+- Use Tailwind responsive prefixes (sm:, md:, lg:) for breakpoints
+- Test all layouts on mobile viewport
+- Make sure everything you produce is mobile-friendly
+- Keep UI consistent across pages
+- Use modern UI/UX design patterns
+
+## Component Customization
+
+- Look for CUSTOMIZE comments to find customization points
+- Update sidebar navigation in layout/sidebar.tsx
+- Update user info in layout/header.tsx
+- Update dashboard content in app/page.tsx
+
+## Animations
+
+- Use Tailwind transitions for simple effects
+- Use Framer Motion for complex animations (if added)
+- Keep animations subtle and professional
+
+## Accessibility and Content
+
+- Include proper semantic HTML
+- Ensure accessibility (alt texts, ARIA labels)
+- Use realistic placeholder content
+- Follow WCAG guidelines
+
+## Performance
+
+- Minimize re-renders
+- Favor server components and Next.js SSR
+- Use dynamic imports for heavy components
+- Optimize images with next/image
+
+## Package Manager
+
+- Use pnpm
+- Use pnpm lint for linting fixes
+- Use pnpm dev for development server
+- Use pnpm build for production builds
+
+## Available Components
+
+### UI Components (@/components/ui)
+- Button: Primary, secondary, outline, ghost, destructive, link variants
+- Card: CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+- Input: Text input with label and error states
+- Textarea: Multi-line text input
+- Badge: Labels and status indicators
+- Avatar: User profile images with fallback
+- Skeleton: Loading state placeholders
+
+### Layout Components (@/components/layout)
+- Header: Dashboard header with logo, notifications, and user menu
+- Sidebar: Dashboard sidebar navigation with sections
