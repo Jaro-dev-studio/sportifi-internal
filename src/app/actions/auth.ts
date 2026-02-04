@@ -270,42 +270,38 @@ export async function createTeam(
       counter++
     }
     
-    // Create team and membership in transaction
-    const team = await prisma.$transaction(async (tx) => {
-      const newTeam = await tx.team.create({
-        data: {
-          name,
-          slug,
-          description,
+    // Create team
+    const team = await prisma.team.create({
+      data: {
+        name,
+        slug,
+        description,
+      },
+    })
+    
+    // Add creator as COACH
+    await prisma.teamMembership.create({
+      data: {
+        userId,
+        teamId: team.id,
+        role: "COACH",
+        permissions: {
+          canEdit: true,
+          canInvite: true,
+          canDelete: true,
+          canUpload: true,
+          canAnalyze: true,
         },
-      })
-      
-      // Add creator as COACH
-      await tx.teamMembership.create({
-        data: {
-          userId,
-          teamId: newTeam.id,
-          role: "COACH",
-          permissions: {
-            canEdit: true,
-            canInvite: true,
-            canDelete: true,
-            canUpload: true,
-            canAnalyze: true,
-          },
-        },
-      })
-      
-      // Create default playbook folders
-      await tx.playbookFolder.createMany({
-        data: [
-          { teamId: newTeam.id, name: "Offense", playType: "offense", sortOrder: 0 },
-          { teamId: newTeam.id, name: "Defense", playType: "defense", sortOrder: 1 },
-          { teamId: newTeam.id, name: "Special Teams", playType: "special", sortOrder: 2 },
-        ],
-      })
-      
-      return newTeam
+      },
+    })
+    
+    // Create default playbook folders
+    await prisma.playbookFolder.createMany({
+      data: [
+        { teamId: team.id, name: "Offense", playType: "offense", sortOrder: 0 },
+        { teamId: team.id, name: "Defense", playType: "defense", sortOrder: 1 },
+        { teamId: team.id, name: "Special Teams", playType: "special", sortOrder: 2 },
+      ],
     })
     
     await logAuditEvent({
