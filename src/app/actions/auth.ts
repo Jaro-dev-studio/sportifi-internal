@@ -28,7 +28,7 @@ export async function registerUser(input: RegisterInput): Promise<ActionResult> 
     // Validate input
     const validated = registerSchema.safeParse(input)
     if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
+      return { success: false, error: validated.error.issues[0].message }
     }
     
     const { name, email, password } = validated.data
@@ -154,7 +154,7 @@ export async function sendPasswordResetEmail(input: ForgotPasswordInput): Promis
     
     const validated = forgotPasswordSchema.safeParse(input)
     if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
+      return { success: false, error: validated.error.issues[0].message }
     }
     
     const { email } = validated.data
@@ -203,7 +203,7 @@ export async function resetPassword(input: ResetPasswordInput): Promise<ActionRe
     
     const validated = resetPasswordSchema.safeParse(input)
     if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
+      return { success: false, error: validated.error.issues[0].message }
     }
     
     const { token, password } = validated.data
