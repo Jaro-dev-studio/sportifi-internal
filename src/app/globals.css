@@ -1,36 +1,35 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --radius: 0.5rem;
-  }
+@theme {
+  --color-background: hsl(222.2 84% 4.9%);
+  --color-foreground: hsl(210 40% 98%);
+  --color-card: hsl(222.2 84% 4.9%);
+  --color-card-foreground: hsl(210 40% 98%);
+  --color-popover: hsl(222.2 84% 4.9%);
+  --color-popover-foreground: hsl(210 40% 98%);
+  --color-primary: hsl(217.2 91.2% 59.8%);
+  --color-primary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-secondary: hsl(217.2 32.6% 17.5%);
+  --color-secondary-foreground: hsl(210 40% 98%);
+  --color-muted: hsl(217.2 32.6% 17.5%);
+  --color-muted-foreground: hsl(215 20.2% 65.1%);
+  --color-accent: hsl(217.2 32.6% 17.5%);
+  --color-accent-foreground: hsl(210 40% 98%);
+  --color-destructive: hsl(0 62.8% 50.6%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(217.2 32.6% 17.5%);
+  --color-input: hsl(217.2 32.6% 17.5%);
+  --color-ring: hsl(224.3 76.3% 48%);
+  --radius: 0.5rem;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-border);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 }
 
@@ -41,16 +40,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
+  background: var(--color-background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
+  background: var(--color-muted);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: var(--color-muted-foreground);
 }
 
 /* Animation classes */
@@ -84,20 +83,33 @@
 
 /* Toggle switch styles */
 .toggle {
-  @apply relative w-10 h-5 bg-slate-700 rounded-full cursor-pointer transition-colors;
+  position: relative;
+  width: 2.5rem;
+  height: 1.25rem;
+  background-color: var(--color-muted);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .toggle:checked {
-  @apply bg-blue-500;
+  background-color: var(--color-primary);
 }
 
 .toggle::after {
   content: "";
-  @apply absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform;
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  border-radius: 9999px;
+  transition: transform 0.2s;
 }
 
 .toggle:checked::after {
-  @apply translate-x-5;
+  transform: translateX(1.25rem);
 }
 
 /* Touch-friendly targets for iPad */

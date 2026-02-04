@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { Loader2 } from "lucide-react"
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode
@@ -68,5 +68,21 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+  )
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      </div>
+    }>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   )
 }

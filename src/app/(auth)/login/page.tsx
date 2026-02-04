@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { loginSchema, magicLinkSchema, type LoginInput } from "@/lib/validations"
 import { sendMagicLink } from "@/app/actions/auth"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
@@ -231,5 +231,23 @@ export default function LoginPage() {
         </Link>
       </CardFooter>
     </Card>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <Card className="bg-slate-800/50 border-slate-700">
+      <CardContent className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      </CardContent>
+    </Card>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginForm />
+    </Suspense>
   )
 }
