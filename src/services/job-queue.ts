@@ -6,7 +6,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { JobStatus } from "@prisma/client"
+import type { JobStatus } from "@/types"
 
 export interface JobPayload {
   [key: string]: unknown

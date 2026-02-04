@@ -1,4 +1,9 @@
-import type { PlayCardType, TeamRole, VideoStatus, PlaySessionStatus, JobStatus } from "@prisma/client"
+// Define types to match Prisma schema enums
+export type PlayCardType = "ACTUAL" | "COACHING" | "MANUAL"
+export type TeamRole = "COACH" | "ASSISTANT" | "PLAYER"
+export type VideoStatus = "UPLOADING" | "PROCESSING" | "READY" | "FAILED"
+export type PlaySessionStatus = "DRAFT" | "IN_PROGRESS" | "COMPLETED"
+export type JobStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLED"
 
 // Field position for play cards (normalized 0-100)
 export interface FieldPosition {
@@ -149,6 +154,3 @@ export interface PaginatedResponse<T> {
   pageSize: number
   hasMore: boolean
 }
-
-// Re-export Prisma enums
-export { PlayCardType, TeamRole, VideoStatus, PlaySessionStatus, JobStatus }

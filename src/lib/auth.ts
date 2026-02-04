@@ -3,7 +3,9 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import Credentials from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
 import { prisma } from "./prisma"
-import type { TeamRole } from "@prisma/client"
+
+// Define TeamRole type to match Prisma schema
+type TeamRole = "COACH" | "ASSISTANT" | "PLAYER"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
