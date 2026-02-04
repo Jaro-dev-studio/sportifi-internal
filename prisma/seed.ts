@@ -1,7 +1,22 @@
-import { PrismaClient, TeamRole, VideoStatus, PlayCardType, PlaySessionStatus } from "@prisma/client"
+import { PrismaClient } from "@prisma/client/default"
+import { PrismaPg } from "@prisma/adapter-pg"
+import { Pool } from "pg"
 import { hash } from "bcryptjs"
 
-const prisma = new PrismaClient()
+// Create Prisma client with adapter for Prisma 7.x
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error("DATABASE_URL is required")
+}
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
+
+// Import enums from the generated client
+type TeamRole = "COACH" | "ASSISTANT" | "PLAYER"
+type VideoStatus = "UPLOADING" | "PROCESSING" | "READY" | "FAILED"
+type PlayCardType = "ACTUAL" | "COACHING" | "MANUAL"
 
 async function main() {
   console.log("Seeding database...")
@@ -66,7 +81,7 @@ async function main() {
     create: {
       userId: coach.id,
       teamId: team.id,
-      role: TeamRole.COACH,
+      role: "COACH" as TeamRole,
       permissions: {
         canEdit: true,
         canInvite: true,
@@ -83,7 +98,7 @@ async function main() {
     create: {
       userId: assistant.id,
       teamId: team.id,
-      role: TeamRole.ASSISTANT,
+      role: "ASSISTANT" as TeamRole,
       permissions: {
         canEdit: true,
         canInvite: false,
@@ -100,7 +115,7 @@ async function main() {
     create: {
       userId: player.id,
       teamId: team.id,
-      role: TeamRole.PLAYER,
+      role: "PLAYER" as TeamRole,
     },
   })
 
@@ -171,7 +186,7 @@ async function main() {
       teamId: team.id,
       uploaderId: coach.id,
       gameId: game.id,
-      status: VideoStatus.READY,
+      status: "READY" as VideoStatus,
       storageKey: "teams/demo/videos/game-film-1.mp4",
       originalName: "Week 5 Game Film.mp4",
       mimeType: "video/mp4",
@@ -215,7 +230,7 @@ async function main() {
       id: "demo-playcard-1",
       teamId: team.id,
       createdById: coach.id,
-      type: PlayCardType.MANUAL,
+      type: "MANUAL" as PlayCardType,
       name: "Slant Right",
       description: "Quick slant routes to both outside receivers",
       formation: "Shotgun",
@@ -247,7 +262,7 @@ async function main() {
       id: "demo-playcard-2",
       teamId: team.id,
       createdById: coach.id,
-      type: PlayCardType.MANUAL,
+      type: "MANUAL" as PlayCardType,
       name: "Zone Read Left",
       description: "Zone read option to the left side",
       formation: "Shotgun",
@@ -289,7 +304,7 @@ async function main() {
       id: "demo-playcard-3",
       teamId: team.id,
       createdById: coach.id,
-      type: PlayCardType.MANUAL,
+      type: "MANUAL" as PlayCardType,
       name: "Cover 3 Zone",
       description: "Basic Cover 3 zone defense alignment",
       formation: "4-3",
