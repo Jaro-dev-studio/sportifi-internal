@@ -1,0 +1,521 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// AUTH & USER MODELS
+// ============================================================================
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  passwordHash   String?
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  accounts       Account[]
+  sessions       Session[]
+  teamMemberships TeamMembership[]
+  uploadedVideos VideoAsset[]
+  playSessions   PlaySession[]
+  playCards      PlayCard[]
+  auditLogs      AuditLog[]
+  invitesSent    Invite[]      @relation("InviteSender")
+  passwordResets PasswordReset[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+// ============================================================================
+// TEAM & MULTI-TENANCY MODELS
+// ============================================================================
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  memberships    TeamMembership[]
+  invites        Invite[]
+  videoAssets    VideoAsset[]
+  games          Game[]
+  playCards      PlayCard[]
+  playbookFolders PlaybookFolder[]
+  auditLogs      AuditLog[]
+  roster         RosterPlayer[]
+
+  @@map("teams")
+}
+
+enum TeamRole {
+  COACH       // Full access
+  ASSISTANT   // View/edit based on permissions
+  PLAYER      // View only
+}
+
+model TeamMembership {
+  id          String   @id @default(cuid())
+  userId      String
+  teamId      String
+  role        TeamRole @default(PLAYER)
+  permissions Json?    // { canEdit: boolean, canInvite: boolean, canDelete: boolean }
+  joinedAt    DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("team_memberships")
+}
+
+model Invite {
+  id        String    @id @default(cuid())
+  email     String
+  teamId    String
+  role      TeamRole  @default(PLAYER)
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  senderId  String
+  createdAt DateTime  @default(now())
+
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sender User @relation("InviteSender", fields: [senderId], references: [id])
+
+  @@map("invites")
+}
+
+model RosterPlayer {
+  id            String  @id @default(cuid())
+  teamId        String
+  jerseyNumber  String
+  name          String
+  position      String?
+  height        String?
+  weight        String?
+  year          String? // Freshman, Sophomore, Junior, Senior
+  isActive      Boolean @default(true)
+  linkedUserId  String? // Optional link to a User account
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, jerseyNumber])
+  @@map("roster_players")
+}
+
+// ============================================================================
+// VIDEO & GAME MODELS
+// ============================================================================
+
+enum VideoStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model VideoAsset {
+  id           String      @id @default(cuid())
+  teamId       String
+  uploaderId   String
+  status       VideoStatus @default(UPLOADING)
+  storageKey   String      // S3 or storage path
+  originalName String
+  mimeType     String
+  fileSize     Int         // bytes
+  duration     Float?      // seconds
+  width        Int?
+  height       Int?
+  thumbnailKey String?
+  metadata     Json?       // Additional metadata
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  team     Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  uploader User          @relation(fields: [uploaderId], references: [id])
+  game     Game?         @relation(fields: [gameId], references: [id])
+  gameId   String?
+  clips    Clip[]
+  playSessions PlaySession[]
+
+  @@map("video_assets")
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  opponent    String?
+  gameDate    DateTime?
+  location    String?
+  result      String?  // W/L and score
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  team   Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  videos VideoAsset[]
+
+  @@map("games")
+}
+
+model Clip {
+  id          String   @id @default(cuid())
+  videoId     String
+  name        String?
+  startTime   Float    // seconds
+  endTime     Float    // seconds
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  video        VideoAsset    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  playSessions PlaySession[]
+
+  @@map("clips")
+}
+
+// ============================================================================
+// PLAY SESSION & ANALYSIS MODELS
+// ============================================================================
+
+enum PlaySessionStatus {
+  DRAFT
+  ANALYZING
+  REVIEWED
+  COMPLETED
+}
+
+model PlaySession {
+  id          String            @id @default(cuid())
+  videoId     String?
+  clipId      String?
+  createdById String
+  status      PlaySessionStatus @default(DRAFT)
+  name        String?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  video      VideoAsset? @relation(fields: [videoId], references: [id])
+  clip       Clip?       @relation(fields: [clipId], references: [id])
+  createdBy  User        @relation(fields: [createdById], references: [id])
+  plays      Play[]
+  frames     FrameExtraction[]
+
+  @@map("play_sessions")
+}
+
+model FrameExtraction {
+  id            String   @id @default(cuid())
+  playSessionId String
+  frameNumber   Int
+  timestamp     Float    // seconds
+  storageKey    String   // Path to extracted frame image
+  aiData        Json?    // Raw AI detection data
+  createdAt     DateTime @default(now())
+
+  playSession PlaySession @relation(fields: [playSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([playSessionId, frameNumber])
+  @@map("frame_extractions")
+}
+
+model Play {
+  id            String   @id @default(cuid())
+  sessionId     String
+  index         Int      // Play number within the session
+  name          String?
+  startTime     Float    // seconds
+  endTime       Float    // seconds
+  formationType String?  // e.g., "I-Formation", "Shotgun"
+  playType      String?  // e.g., "Run", "Pass"
+  notes         String?
+  isReviewed    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  session       PlaySession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  playerEntities PlayerEntity[]
+  playCards     PlayCard[]
+
+  @@unique([sessionId, index])
+  @@map("plays")
+}
+
+model PlayerEntity {
+  id           String   @id @default(cuid())
+  playId       String
+  jerseyNumber String?
+  label        String?  // Position or role label
+  teamSide     String?  // "offense" or "defense"
+  startX       Float    // Normalized 0-100 for field position
+  startY       Float    // Normalized 0-100 for field position
+  color        String?  // For visualization
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  play      Play             @relation(fields: [playId], references: [id], onDelete: Cascade)
+  pathPoints PlayerPathPoint[]
+
+  @@map("player_entities")
+}
+
+model PlayerPathPoint {
+  id              String @id @default(cuid())
+  playerEntityId  String
+  timestamp       Float  // Relative time within the play (seconds)
+  x               Float  // Normalized 0-100
+  y               Float  // Normalized 0-100
+  isKeyframe      Boolean @default(false) // Coach-confirmed keyframe
+
+  playerEntity PlayerEntity @relation(fields: [playerEntityId], references: [id], onDelete: Cascade)
+
+  @@map("player_path_points")
+}
+
+// ============================================================================
+// PLAY CARD MODELS
+// ============================================================================
+
+enum PlayCardType {
+  ACTUAL    // Generated from video analysis
+  COACHING  // Modified/ideal version
+  MANUAL    // Built from scratch
+}
+
+model PlayCard {
+  id           String       @id @default(cuid())
+  teamId       String
+  sourcePlayId String?      // Optional link to analyzed play
+  createdById  String
+  type         PlayCardType @default(MANUAL)
+  name         String
+  description  String?
+  formation    String?
+  playType     String?      // Offense/Defense/Special Teams
+  thumbnail    String?
+  data         Json         // Full play card data including positions, routes, etc.
+  tags         String[]     // Tags for categorization
+  isArchived   Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  team         Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sourcePlay   Play?          @relation(fields: [sourcePlayId], references: [id])
+  createdBy    User           @relation(fields: [createdById], references: [id])
+  playbookItems PlaybookItem[]
+  shareLinks   ShareLink[]
+  watchStatus  PlayerWatchStatus[]
+
+  @@map("play_cards")
+}
+
+model PlaybookFolder {
+  id          String   @id @default(cuid())
+  teamId      String
+  name        String
+  description String?
+  parentId    String?  // For nested folders
+  playType    String?  // Offense/Defense/Special Teams
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  team   Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  parent PlaybookFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children PlaybookFolder[] @relation("FolderHierarchy")
+  items  PlaybookItem[]
+
+  @@map("playbook_folders")
+}
+
+model PlaybookItem {
+  id         String   @id @default(cuid())
+  folderId   String
+  playCardId String
+  sortOrder  Int      @default(0)
+  notes      String?
+  addedAt    DateTime @default(now())
+
+  folder   PlaybookFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  playCard PlayCard       @relation(fields: [playCardId], references: [id], onDelete: Cascade)
+
+  @@unique([folderId, playCardId])
+  @@map("playbook_items")
+}
+
+// ============================================================================
+// SHARING & COLLABORATION MODELS
+// ============================================================================
+
+enum SharePermission {
+  VIEW
+  EDIT
+  COMMENT
+}
+
+model ShareLink {
+  id          String          @id @default(cuid())
+  playCardId  String
+  token       String          @unique
+  permission  SharePermission @default(VIEW)
+  expiresAt   DateTime?
+  maxUses     Int?
+  useCount    Int             @default(0)
+  password    String?         // Optional password protection
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+
+  playCard PlayCard @relation(fields: [playCardId], references: [id], onDelete: Cascade)
+
+  @@map("share_links")
+}
+
+model PlayerWatchStatus {
+  id         String   @id @default(cuid())
+  playCardId String
+  userId     String
+  watched    Boolean  @default(false)
+  watchedAt  DateTime?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  playCard PlayCard @relation(fields: [playCardId], references: [id], onDelete: Cascade)
+
+  @@unique([playCardId, userId])
+  @@map("player_watch_status")
+}
+
+// ============================================================================
+// AUDIT & ACTIVITY MODELS
+// ============================================================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  teamId     String?
+  userId     String?
+  action     String   // e.g., "video.upload", "play_card.create", "invite.send"
+  entityType String?  // e.g., "VideoAsset", "PlayCard", "Team"
+  entityId   String?
+  metadata   Json?    // Additional context
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  team Team? @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([teamId, createdAt])
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// JOB QUEUE MODEL (for video processing, AI tasks)
+// ============================================================================
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model ProcessingJob {
+  id           String    @id @default(cuid())
+  type         String    // e.g., "video.transcode", "frames.extract", "ai.detect"
+  status       JobStatus @default(PENDING)
+  priority     Int       @default(0)
+  payload      Json      // Job-specific data
+  result       Json?     // Job results
+  error        String?   // Error message if failed
+  progress     Int       @default(0) // 0-100
+  attempts     Int       @default(0)
+  maxAttempts  Int       @default(3)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status, priority])
+  @@index([type, status])
+  @@map("processing_jobs")
+}
